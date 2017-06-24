@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd 
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- 代理服务 -->
+	<bean id="proxyServer" class="io.netty.cproxy.transaction.ProxyServer"
+		init-method="start" destroy-method="stop">
+		<property name="groups">
+			<list>
+				<ref bean="GRP8080" />
+			</list>
+		</property>
+	</bean>
+	<bean id="GRP8080" class="io.netty.cproxy.transaction.model.ProxyGroup">
+		<property name="id" value="GRP8080" />
+		<property name="servPort" value="8080" />
+		<property name="loader">
+			<bean class="io.netty.cproxy.transaction.load.impl.SimpleRoundRobinScheduling" />
+		</property>
+		<property name="heartbeatInterval" value="30000" />		
+		<property name="heartbeatHandler">
+			<bean class="io.netty.cproxy.transaction.heartbeat.impl.DigitsHeadHeartbeatHandler" />
+		</property>			
+		<property name="channelList">
+			<list>
+				<bean class="io.netty.cproxy.transaction.channel.BaseServiceChannel">
+					<property name="servIP" value="192.168.15.122" />
+					<property name="servPort" value="17001" />
+				</bean>
+				<!-- <bean class="io.netty.cproxy.transaction.channel.BaseServiceChannel">
+					<property name="servIP" value="127.0.0.1" />
+					<property name="servPort" value="18002" />
+				</bean>
+				<bean class="io.netty.cproxy.transaction.channel.BaseServiceChannel">
+					<property name="servIP" value="127.0.0.1" />
+					<property name="servPort" value="18003" />
+				</bean> -->
+			</list>
+		</property>
+
+	</bean>
+
+	<!-- 监控控制台服务 -->
+	<bean id="consoleServer" class="io.netty.cproxy.console.ConsoleServer"
+		init-method="start" destroy-method="stop">
+		<property name="port" value="8081" />
+		<property name="handler">
+			<bean class="io.netty.cproxy.console.ConsoleHandler" />
+		</property>
+	</bean>
+</beans>

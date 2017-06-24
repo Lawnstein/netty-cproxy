@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+	<property name="APPID" value="olproxy" />
+	<property name="StdoutLogLevel" value="WARN" />
+	<property name="RootLogLevel" value="ERROR" />
+	<property name="ThirdLogLevel" value="DEBUG" />
+	<contextName>${APPID}</contextName>
+
+	<logger name="org.springframework" level="WARN" />
+	
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>${StdoutLogLevel}</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+		<discriminator>
+			<Key>TRCODE</Key>
+			<DefaultValue>X</DefaultValue>
+		</discriminator>
+		<encoder>
+			<ImmediateFlush>true</ImmediateFlush>
+			<pattern>[%date{HH:mm:ss.SSS}][%thread][%-5level][%logger{36}] %msg%n</pattern>
+		</encoder>
+	</appender>
+	<appender name="STDERR" class="com.csii.ccbs.logback.AssembleAppender">
+		<file>log/ERROR.log</file>		
+		<rollingPolicy class="com.csii.ccbs.logback.rolling.NamingAndSizeBasedRollingPolicy">
+			<fileNamePattern>log/${APPID}/%d{yyyyMMdd}/ERROR_%i</fileNamePattern>
+			<maxFileSize>20MB</maxFileSize>
+			<!-- develop/testor mode.
+			<maxHistory>20</maxHistory>
+			-->
+		</rollingPolicy>
+		<encoder>
+			<immediateFlush>false</immediateFlush>
+			<pattern>[%date{HH:mm:ss.SSS}][%thread][%-5level][%logger{36}] %msg%n</pattern>
+			<!-- develop/testor mode.
+			<pattern>[%date{HH:mm:ss.SSS}][%-5level][%thread][%file:%line] %msg%n</pattern>
+			-->
+		</encoder>
+	</appender>
+	<appender name="ASSEMBLE" class="com.csii.ccbs.logback.AssembleAppender">
+		<defaultMDCProperties>TRCODE=X;THREADNO=0;</defaultMDCProperties>
+		<file>log/ASSEMBLE.log</file>		
+		<rollingPolicy class="com.csii.ccbs.logback.rolling.NamingAndSizeBasedRollingPolicy">
+			<fileNamePattern>log/${APPID}/%d{yyyyMMdd}/%X{TRCODE}_%i</fileNamePattern>
+			<maxFileSize>20MB</maxFileSize>
+			<!-- develop/testor mode.
+			<maxHistory>20</maxHistory>
+			-->
+		</rollingPolicy>
+		<encoder>
+			<immediateFlush>false</immediateFlush>
+			<pattern>[%date{HH:mm:ss.SSS}][%thread][%-5level][%logger{36}] %msg%n</pattern>
+			<!-- develop/testor mode.
+			<pattern>[%date{HH:mm:ss.SSS}][%-5level][%thread][%file:%line] %msg%n</pattern>
+			-->
+		</encoder>
+	</appender>
+
+	<root level="${RootLogLevel}">
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="STDERR" />
+		<appender-ref ref="ASSEMBLE" />
+	</root>
+
+</configuration>
